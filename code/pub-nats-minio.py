@@ -29,7 +29,7 @@ async def main():
 
     nc = await nats.connect(os.getenv('NATS_ADDRESS'))
     js = nc.jetstream()
-    await js.add_stream(name='CCTV', subjects=['detect'])
+    await js.add_stream(name=os.getenv('NATS_STREAM_NAME'), subjects=[os.getenv('NATS_SUBJECT')])
     print("NATS connected")
 
     # Capture video from the default camera

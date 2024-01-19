@@ -1,51 +1,55 @@
 import asyncio
 from minio import Minio
-from nats.aio.client import Client as NATS
-from dotenv import load_dotenv
 import os
 import nats
+from dotenv import load_dotenv
+from minio.error import S3Error
 
-dat1a = ""  # Global variable to store data from NATS
-message_received = asyncio.Event()  # Event to signal when a message is received
+load_dotenv()
+
+# Initialize MinIO client
+ACCESS_KEY = os.getenv('MINIO_ACCESS_KEY')
+SECRET_KEY = os.getenv('MINIO_SECRET_KEY')
+MINIO_CLIENT = Minio(os.getenv('MINIO_ADDRESS'), access_key=ACCESS_KEY, secret_key=SECRET_KEY, secure=False)
+
+async def download_from_minio(bucket_name, object_name, dest_file_name, retries=5, delay=1):
+    for attempt in range(retries):
+        try:
+            MINIO_CLIENT.fget_object(bucket_name, object_name, dest_file_name)
+            print(f"Successfully downloaded {object_name} to {dest_file_name}")
+            print("i runnging API!!!") # Insert Stable Diffusion API
+            break
+        except S3Error as e:
+            if e.code == "NoSuchKey" and attempt < retries - 1:
+                print(f"Object {object_name} not found, retrying in {delay} seconds...")
+                await asyncio.sleep(delay)
+            else:
+                print(f"Failed to download {object_name}. Reason: {e}")
+                break
+
+async def message_handler(msg):
+    object_name = msg.data.decode()
+    bucket_name = os.getenv('MINIO_BUCKET_NAME')
+    dest_file_name = "./data/" + object_name
+
+    # Schedule the download task
+    asyncio.create_task(download_from_minio(bucket_name, object_name, dest_file_name))
 
 async def main():
-    print("ready")
-    load_dotenv()
-    print("setting..")
-    # Initialize MinIO client
-    ACCESS_KEY = os.getenv('MINIO_ACCESS_KEY')
-    SECRET_KEY = os.getenv('MINIO_SECRET_KEY')
-    MINIO_CLIENT = Minio(os.getenv('MINIO_ADDRESS'), access_key=ACCESS_KEY, secret_key=SECRET_KEY, secure=False)
-
     # Initialize NATS client
     nc = await nats.connect(os.getenv('NATS_ADDRESS'))
-    print("start")
-    while True:
-        async def message_handler(msg):
-            global dat1a
-            dat1a = msg.data.decode()
-            message_received.set()  # Signal that a message has been received
+    js = nc.jetstream()
+    await js.add_stream(name=os.getenv('NATS_STREAM_NAME'), subjects=[os.getenv('NATS_SUBJECT')])
+    print("ready")
+    # Subscribe to NATS topic and handle messages
+    await js.subscribe(os.getenv('NATS_SUBJECT'), 'workers', cb=message_handler)
 
-        # Subscribe to NATS topic
-        await nc.subscribe("cctv.detect", cb=message_handler)
-
-        # Wait for a message to be received
-        await message_received.wait()
-        await asyncio.sleep(1)
-        print(dat1a)
-        BUCKET_NAME = os.getenv('MINIO_BUCKET_NAME')
-        OBJECT_NAME = dat1a  # Use the data received from NATS
-        DEST_FILE_NAME = "./data/" + OBJECT_NAME  # Local file path
-
-            # Download the object from MinIO
-        try:
-            MINIO_CLIENT.fget_object(BUCKET_NAME, OBJECT_NAME, DEST_FILE_NAME)
-            print(f"Successfully downloaded {OBJECT_NAME} to {DEST_FILE_NAME}")
-        except Exception as e:
-            print(f"Failed to download {OBJECT_NAME}. Reason: {e}")
-
+    try:
+        # Keep the coroutine running
+        await asyncio.Future()
+    finally:
         # Close NATS connection
-    await nc.close()
+        await nc.close()
 
 if __name__ == '__main__':
     asyncio.run(main())
