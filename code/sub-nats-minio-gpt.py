@@ -38,9 +38,11 @@ async def message_handler(msg):
 async def main():
     # Initialize NATS client
     nc = await nats.connect(os.getenv('NATS_ADDRESS'))
-
+    js = nc.jetstream()
+    await js.add_stream(name='CCTV', subjects=['detect'])
+    print("ready")
     # Subscribe to NATS topic and handle messages
-    await nc.subscribe("cctv.detect", cb=message_handler)
+    await js.subscribe('detect', 'workers', cb=message_handler)
 
     try:
         # Keep the coroutine running

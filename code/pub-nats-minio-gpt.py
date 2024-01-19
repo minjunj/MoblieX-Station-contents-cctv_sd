@@ -28,6 +28,8 @@ async def main():
     print("Bucket connected")
 
     nc = await nats.connect(os.getenv('NATS_ADDRESS'))
+    js = nc.jetstream()
+    await js.add_stream(name='CCTV', subjects=['detect'])
     print("NATS connected")
 
     # Capture video from the default camera
@@ -52,7 +54,7 @@ async def main():
             executor.submit(save_and_upload, frame, frame_count, c_time)
             # Publish the filename to NATS
             filename = f'index-{frame_count}_{BUCKET_NAME}_timestamp-{c_time}.jpg'
-            await nc.publish(os.getenv('NATS_SUBJECT'), filename.encode())
+            await js.publish(os.getenv('NATS_SUBJECT'), filename.encode())
 
             frame_count += 1
             # Adjust sleep time if necessary for your specific hardware
