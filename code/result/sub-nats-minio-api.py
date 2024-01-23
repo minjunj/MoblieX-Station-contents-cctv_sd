@@ -39,10 +39,10 @@ async def main():
     # Initialize NATS client
     nc = await nats.connect(os.getenv('NATS_ADDRESS'))
     js = nc.jetstream()
-    await js.add_stream(name=os.getenv('NATS_STREAM_NAME'), subjects=[os.getenv('NATS_SUBJECT')])
+    #await js.add_stream(name=os.getenv('NATS_STREAM_NAME'), subjects=[os.getenv('NATS_SUBJECT_DT')])
     print("ready")
     # Subscribe to NATS topic and handle messages
-    await js.subscribe(os.getenv('NATS_SUBJECT'), 'workers', cb=message_handler)
+    await js.subscribe(os.getenv('NATS_SUBJECT_DT'), 'workers', cb=message_handler)
 
     try:
         # Keep the coroutine running
