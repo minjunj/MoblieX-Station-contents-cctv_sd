@@ -1,9 +1,9 @@
 .idea
 __pycache__
-openark/openark-stream_publish.py
-openark/openark-stream_subscribe.py
-face-detection/asset/*.png
-asset/*.jpg
-asset/*.jpeg
-result/*.jpg
-result/data/*.jpg
+code/openark/openark-stream_publish.py
+code/openark/openark-stream_subscribe.py
+code/face-detection/asset/*.png
+code/face-detection/asset/*.jpg
+code/face-detection/asset/*.jpeg
+code/result/*.jpg
+code/result/data/*.jpg
