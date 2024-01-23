@@ -34,8 +34,8 @@ async def main():
 
     # Capture video from the default camera
     cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 512)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 512)
     # Set capture frame rate
     cap.set(cv2.CAP_PROP_FPS, 60)
     print("Ready to capture")
