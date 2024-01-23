@@ -13,6 +13,8 @@ import argparse
 import imutils
 import dlib 
 import face_recognition
+from datetime import datetime, timedelta
+
 
 load_dotenv()
 # MinIO Configuration
@@ -59,7 +61,7 @@ async def main():
 
     frame_count = 0
     executor = ThreadPoolExecutor(max_workers=10)
-
+    last_sent_time = datetime.now() - timedelta(seconds=3)
     try:
         while True:
             ret, frame = cap.read()
@@ -92,11 +94,14 @@ async def main():
 
             # face confiugure가 성공적일 경우
             if len(result) != 0:
-                print("shot CCTV.SD")
-                # Offload the save and upload task to a thread
-                executor.submit(save_and_upload, frame, frame_count, c_time)
-                # Publish the filename to NATS
-                await js.publish(os.getenv('NATS_SUBJECT_DT'), filename.encode()) # sent cctv.detect
+                current_time = datetime.now()
+                if current_time - last_sent_time >= timedelta(seconds=3):
+                    print("shot CCTV.SD")
+                    # Offload the save and upload task to a thread
+                    executor.submit(save_and_upload, frame, frame_count, c_time)
+                    # Publish the filename to NATS
+                    await js.publish(os.getenv('NATS_SUBJECT_DT'), filename.encode())  # sent cctv.detect
+                    last_sent_time = current_time
 
             # 기본적으로 보내는 곳
             executor.submit(save_and_upload, frame, frame_count, c_time)
