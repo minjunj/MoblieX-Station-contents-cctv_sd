@@ -3,7 +3,7 @@ FROM python:3.10-buster
 
 # Set a working directory
 WORKDIR /app
-
+RUN mkdir /app/out
 # Install system dependencies (if any specific ones are needed)
 RUN apt-get update && apt-get install -y curl git
 

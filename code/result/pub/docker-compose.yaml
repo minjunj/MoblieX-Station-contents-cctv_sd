@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   pub:
-    image: pub:0.2
+    image: pub:0.1
     container_name: pub
     environment:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}

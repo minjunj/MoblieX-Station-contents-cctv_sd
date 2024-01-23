@@ -1,8 +1,8 @@
 version: "3"
 services:
   sub:
-    image: sub:0.1
-    env_file: b.env
+    image: sub:0.2
+    container_name: sub
     environment:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
@@ -13,3 +13,5 @@ services:
       NATS_SUBJECT: ${NATS_SUBJECT}
       NATS_STREAM_NAME: ${NATS_STREAM_NAME}
       SD_API_PATH: ${SD_API_PATH}
+    volumes:
+      - "./out:/app/out"
