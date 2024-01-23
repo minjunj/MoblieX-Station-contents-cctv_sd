@@ -8,13 +8,13 @@ import httpx
 import base64
 
 load_dotenv()
-
 # Initialize MinIO client
 ACCESS_KEY = os.getenv('MINIO_ACCESS_KEY')
 SECRET_KEY = os.getenv('MINIO_SECRET_KEY')
 MINIO_CLIENT = Minio(os.getenv('MINIO_ADDRESS'), access_key=ACCESS_KEY, secret_key=SECRET_KEY, secure=False)
-
+count = 0
 async def download_from_minio(bucket_name, object_name, dest_file_name, retries=5, delay=1):
+    global count
     for attempt in range(retries):
         try:
             MINIO_CLIENT.fget_object(bucket_name, object_name, dest_file_name)
@@ -27,15 +27,20 @@ async def download_from_minio(bucket_name, object_name, dest_file_name, retries=
                 # Open the image file in binary read mode and read its content
                 with open(file_path, "rb") as file:
                     files = {"init_image": (moto_file, file, "image/jpg")}
-                    response = await client.post('http://10.32.88.26/img2img', files=files, timeout=None)
+                    try:
+                        response = await client.post('http://10.32.88.26/img2img', files=files, timeout=15.0)
+                    except:
+                        pass
 
                 # If response is successful and contains binary data
                 if response.status_code == 200:
                     print("generate!")
-                    file_name = "output.png"  # Name of the output file
+                    count += 1
+                    file_name = "./out/"+"output"+str(count)+".png"  # Name of the output file
                     with open(file_name, "wb") as file:
                         file.write(response.content)  # Write binary content to the file
-
+            
+                
         except S3Error as e:
             if e.code == "NoSuchKey" and attempt < retries - 1:
                 #print(f"Object {object_name} not found, retrying in {delay} seconds...")
@@ -48,17 +53,18 @@ async def message_handler(msg):
     object_name = msg.data.decode()
     bucket_name = os.getenv('MINIO_BUCKET_NAME')
     dest_file_name = "./data/" + object_name
-
     # Schedule the download task
     asyncio.create_task(download_from_minio(bucket_name, object_name, dest_file_name))
 
 async def main():
+    
     # Initialize NATS client
     nc = await nats.connect(os.getenv('NATS_ADDRESS'))
     js = nc.jetstream()
     #await js.add_stream(name=os.getenv('NATS_STREAM_NAME'), subjects=[os.getenv('NATS_SUBJECT_DT')])
     print("ready")
     # Subscribe to NATS topic and handle messages
+    
     await js.subscribe(os.getenv('NATS_SUBJECT_DT'), 'workers', cb=message_handler)
 
     try:
