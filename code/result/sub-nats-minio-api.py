@@ -21,24 +21,20 @@ async def download_from_minio(bucket_name, object_name, dest_file_name, retries=
             print(f"Successfully downloaded {object_name} to {dest_file_name}")
             await asyncio.sleep(1)
 
-
-            #print("i runnging API!!!") # Insert Stable Diffusion API
+            moto_file = object_name
+            file_path = './data/'+moto_file
             async with httpx.AsyncClient() as client:
-                with open(dest_file_name, 'rb') as img_file:
-                    encoded_string = base64.b64encode(img_file.read()).decode('utf-8')
+                # Open the image file in binary read mode and read its content
+                with open(file_path, "rb") as file:
+                    files = {"init_image": (moto_file, file, "image/jpg")}
+                    response = await client.post('http://10.32.88.26/img2img', files=files, timeout=None)
 
-                json_body = {
-                    'init_image': encoded_string
-                }
-                r = await client.post('http://10.32.88.26/img2img_img2img_post', json=json_body)
-
-            if r.status_code == 200:
-                print(f"Successfully uploaded {object_name}")
-            else:
-                print(f"Failed to upload {object_name}. Status: {r.status_code}, Response: {r.text}")
-
-            break
-
+                # If response is successful and contains binary data
+                if response.status_code == 200:
+                    print("generate!")
+                    file_name = "output.png"  # Name of the output file
+                    with open(file_name, "wb") as file:
+                        file.write(response.content)  # Write binary content to the file
 
         except S3Error as e:
             if e.code == "NoSuchKey" and attempt < retries - 1:

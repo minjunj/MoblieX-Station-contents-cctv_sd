@@ -2,8 +2,8 @@ import asyncio
 import httpx
 
 async def main():
-    moto_file = 'index-29_test-bucket_timestamp-2024-01-23-17-31-28.jpg'
-    file_path = './'+moto_file
+    moto_file = 'index-324_test-bucket_timestamp-2024-01-23-17-56-20.jpg'
+    file_path = './data/'+moto_file
     async with httpx.AsyncClient() as client:
         # Open the image file in binary read mode and read its content
         with open(file_path, "rb") as file:
