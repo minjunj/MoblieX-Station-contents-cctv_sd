@@ -2,12 +2,12 @@ import asyncio
 import httpx
 
 async def main():
-    file_path = './index-30_test-bucket_timestamp-2024-01-23-17-26-24.jpg'
-
+    moto_file = 'index-29_test-bucket_timestamp-2024-01-23-17-31-28.jpg'
+    file_path = './'+moto_file
     async with httpx.AsyncClient() as client:
         # Open the image file in binary read mode and read its content
         with open(file_path, "rb") as file:
-            files = {"init_image": ("index-87_test-bucket_timestamp-2024-01-23-16-47-29.jpg", file, "image/jpg")}
+            files = {"init_image": (moto_file, file, "image/jpg")}
             response = await client.post('http://10.32.88.26/img2img', files=files, timeout=None)
 
         # If response is successful and contains binary data
