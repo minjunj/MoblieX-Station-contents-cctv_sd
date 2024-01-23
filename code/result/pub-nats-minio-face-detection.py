@@ -38,7 +38,7 @@ async def main():
     # Confirm NATS
     nc = await nats.connect(os.getenv('NATS_ADDRESS'))
     js = nc.jetstream()
-    await js.add_stream(name=os.getenv('NATS_STREAM_NAME'), subjects=[os.getenv('NATS_SUBJECT'), "CCTV.asdf"])
+    await js.add_stream(name=os.getenv('NATS_STREAM_NAME'), subjects=[os.getenv('NATS_SUBJECT'), os.getenv("NATS_SUBJECT2")])
     print("NATS connected")
 
     #Confirm Face-recongnition
@@ -97,7 +97,7 @@ async def main():
 
             # 기본적을 보내는 곳
             executor.submit(save_and_upload, frame, frame_count, c_time)
-            await js.publish("CCTV.asdf", filename.encode()) # sent CCTV.default
+            await js.publish(os.getenv("NATS_SUBJECT2"), filename.encode()) # sent CCTV.default
             frame_count += 1
             # Adjust sleep time if necessary for your specific hardware
             if (frame_count%20) == 0 : print(filename); os.system(f'rm -rf *.jpg')
