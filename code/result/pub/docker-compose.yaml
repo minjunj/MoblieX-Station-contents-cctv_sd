@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  pub:
+    image: pub:0.2
+    container_name: pub
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_ADDRESS: ${MINIO_ADDRESS}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
+      NATS_ADDRESS: ${NATS_ADDRESS}
+      NATS_SUBJECT_DT: ${NATS_SUBJECT_DT}
+      NATS_SUBJECT: ${NATS_SUBJECT}
+      NATS_STREAM_NAME: ${NATS_STREAM_NAME}
+      SD_API_PATH: ${SD_API_PATH}
+    devices:
+      - "/dev/video0:/dev/video0"
