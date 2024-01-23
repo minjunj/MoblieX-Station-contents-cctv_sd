@@ -28,7 +28,7 @@ async def download_from_minio(bucket_name, object_name, dest_file_name, retries=
                 with open(file_path, "rb") as file:
                     files = {"init_image": (moto_file, file, "image/jpg")}
                     try:
-                        response = await client.post('http://10.32.88.26/img2img', files=files, timeout=15.0)
+                        response = await client.post(os.getenv('SD_API_PATH'), files=files, timeout=15.0)
                     except:
                         pass
 
