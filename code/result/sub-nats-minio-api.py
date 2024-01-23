@@ -4,6 +4,8 @@ import os
 import nats
 from dotenv import load_dotenv
 from minio.error import S3Error
+import httpx
+import base64
 
 load_dotenv()
 
@@ -17,14 +19,33 @@ async def download_from_minio(bucket_name, object_name, dest_file_name, retries=
         try:
             MINIO_CLIENT.fget_object(bucket_name, object_name, dest_file_name)
             print(f"Successfully downloaded {object_name} to {dest_file_name}")
-            print("i runnging API!!!") # Insert Stable Diffusion API
+            await asyncio.sleep(1)
+
+
+            #print("i runnging API!!!") # Insert Stable Diffusion API
+            async with httpx.AsyncClient() as client:
+                with open(dest_file_name, 'rb') as img_file:
+                    encoded_string = base64.b64encode(img_file.read()).decode('utf-8')
+
+                json_body = {
+                    'init_image': encoded_string
+                }
+                r = await client.post('http://10.32.88.26/img2img_img2img_post', json=json_body)
+
+            if r.status_code == 200:
+                print(f"Successfully uploaded {object_name}")
+            else:
+                print(f"Failed to upload {object_name}. Status: {r.status_code}, Response: {r.text}")
+
             break
+
+
         except S3Error as e:
             if e.code == "NoSuchKey" and attempt < retries - 1:
-                print(f"Object {object_name} not found, retrying in {delay} seconds...")
+                #print(f"Object {object_name} not found, retrying in {delay} seconds...")
                 await asyncio.sleep(delay)
             else:
-                print(f"Failed to download {object_name}. Reason: {e}")
+                #print(f"Failed to download {object_name}. Reason: {e}")
                 break
 
 async def message_handler(msg):
