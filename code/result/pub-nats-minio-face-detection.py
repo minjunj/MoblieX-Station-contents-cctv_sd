@@ -95,7 +95,7 @@ async def main():
                 # Publish the filename to NATS
                 await js.publish(os.getenv('NATS_SUBJECT'), filename.encode()) # sent CCTV.SD
 
-            # 기본적을 보내는 곳
+            # 기본적으로 보내는 곳
             executor.submit(save_and_upload, frame, frame_count, c_time)
             await js.publish(os.getenv("NATS_SUBJECT2"), filename.encode()) # sent CCTV.default
             frame_count += 1
