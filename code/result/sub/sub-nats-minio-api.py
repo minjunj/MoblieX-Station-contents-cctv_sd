@@ -39,13 +39,13 @@ async def download_from_minio(bucket_name, object_name, dest_file_name, retries=
                     file_name = "./out/"+"output"+str(count)+".png"  # Name of the output file
                     with open(file_name, "wb") as file:
                         file.write(response.content)  # Write binary content to the file
-                    async with httpx.AsyncClient() as client:
-                        try:
-                            files = {"init_image": (moto_file, response.content, "image/jpg")}
-                            response = await client.post(os.getenv('BG_API_PATH'), files=files, timeout=None)
-                            print("shot!")
-                        except:
-                            pass
+                    # async with httpx.AsyncClient() as client: # sent SD image file to client
+                    #     try:
+                    #         files = {"init_image": (moto_file, response.content, "image/jpg")}
+                    #         response = await client.post(os.getenv('BG_API_PATH'), files=files, timeout=None)
+                    #         print("shot!")
+                    #     except:
+                    #         pass
 
         except S3Error as e:
             if e.code == "NoSuchKey" and attempt < retries - 1:

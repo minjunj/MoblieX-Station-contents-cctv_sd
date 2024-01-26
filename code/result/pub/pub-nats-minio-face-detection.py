@@ -61,7 +61,7 @@ async def main():
 
     frame_count = 0
     executor = ThreadPoolExecutor(max_workers=10)
-    last_sent_time = datetime.now() - timedelta(seconds=7)
+    last_sent_time = datetime.now() - timedelta(seconds=2)
     try:
         while True:
             ret, frame = cap.read()
@@ -95,7 +95,7 @@ async def main():
             # face confiugure가 성공적일 경우
             if len(result) != 0:
                 current_time = datetime.now()
-                if current_time - last_sent_time >= timedelta(seconds=7):
+                if current_time - last_sent_time >= timedelta(seconds=2):
                     print("shot CCTV.SD")
                     # Offload the save and upload task to a thread
                     executor.submit(save_and_upload, frame, frame_count, c_time)
