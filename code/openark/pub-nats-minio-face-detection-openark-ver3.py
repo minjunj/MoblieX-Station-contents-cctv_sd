@@ -17,6 +17,8 @@ import subprocess
 
 load_dotenv()
 
+'''Resulty implement 20fps'''
+
 def run_subprocess_async(image_path, function_name):
     print("Shot")
     subprocess.run(["python", "pub_openark.py", image_path, "--function_name", function_name])
@@ -82,7 +84,6 @@ async def main():
 
             await capture_and_process_frame(frame, detector, predictor)
             frame_count += 1
-            # if (frame_count%20) == 0 : print(filename); os.system(f'rm -rf *.jpg')
     finally:
         cap.release()
         cv2.destroyAllWindows()

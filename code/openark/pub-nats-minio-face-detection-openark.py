@@ -73,7 +73,6 @@ async def main():
             print("shot CCTV.Default")
             subprocess.run(["python", "pub_openark.py", "output_image.jpg", "--function_name", "cctv.default"])
             frame_count += 1
-            # if (frame_count%20) == 0 : print(filename); os.system(f'rm -rf *.jpg')
     finally:
         cap.release()
         cv2.destroyAllWindows()
