@@ -7,3 +7,5 @@ code/face-detection/asset/*.jpg
 code/face-detection/asset/*.jpeg
 code/result/*.jpg
 code/result/data/*.jpg
+code/openark/.env
+code/openark/.token
