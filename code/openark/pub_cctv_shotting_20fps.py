@@ -27,7 +27,8 @@ async def capture_and_process_frame(frame, detector, predictor):
     executor = ThreadPoolExecutor(max_workers=10)
     # Existing image processing code here...
     image = frame
-    image = imutils.resize(image, width=500) 
+    image = imutils.resize(image, width=500)
+    cv2.imwrite('output_image.jpg', image)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) 
     rects = detector(gray, 1)
 
@@ -47,14 +48,13 @@ async def capture_and_process_frame(frame, detector, predictor):
     # easy vtuber를 위한 offset 
     result = {k: v for k, v in classfication.items() if (247 <= k <= 264 and 168 <= v <= 178) or(222 <= k <= 242 and 139 <= v <= 153)}
     
-    cv2.imwrite('output_image.jpg', frame)
+    
     cv2.imwrite('output_image_cv2.jpg', image)
     # Determine which subprocess to call based on processing results
     if len(result) != 0:
         print("Shot CCTV.SD")
         executor.submit(run_subprocess_async, 'output_image.jpg', 'cctv.sd')
     else:
-        print("Shot CCTV.Default")
         executor.submit(run_subprocess_async, 'output_image.jpg', 'cctv.default')
 
 
