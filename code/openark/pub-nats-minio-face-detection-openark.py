@@ -63,27 +63,23 @@ async def main():
             result = {k: v for k, v in classfication.items() if (247 <= k <= 264 and 168 <= v <= 178) or(222 <= k <= 242 and 139 <= v <= 153)}
             
             c_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-            cv2.imwrite('output_image.jpg', frame) ##############################
+            cv2.imwrite('output_image.jpg', frame)
+            cv2.imwrite('output_image_cv2.jpg', image)
             # face confiugure가 성공적일 경우
             if len(result) != 0:
-                current_time = datetime.now()
-                if current_time - last_sent_time >= timedelta(seconds=0.1):
-                    print("shot CCTV.SD")
-                    #####################################
-                    subprocess.run(["python", "pub_openark.py", "output_image.jpg", "--function_name", "cctv.sd"])
-                    #####################################
-                    last_sent_time = current_time
+                print("shot CCTV.SD")
+                subprocess.run(["python", "pub_openark.py", "output_image.jpg", "--function_name", "cctv.sd"])
             # 기본적으로 보내는 곳
-            subprocess.run(["python", "pub_openark.py", "output_image.jpg", "--function_name", "cctv.default"]) ##############################
+            print("shot CCTV.Default")
+            subprocess.run(["python", "pub_openark.py", "output_image.jpg", "--function_name", "cctv.default"])
             frame_count += 1
-            # Adjust sleep time if necessary for your specific hardware
             # if (frame_count%20) == 0 : print(filename); os.system(f'rm -rf *.jpg')
-            await asyncio.sleep(1/60)
     finally:
         cap.release()
         cv2.destroyAllWindows()
         await nc.close()
         executor.shutdown(wait=True)
+
 
 if __name__ == '__main__':
     asyncio.run(main())
