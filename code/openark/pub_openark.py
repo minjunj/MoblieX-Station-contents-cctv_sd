@@ -8,11 +8,11 @@ from openark import OpenArk
 
 async def publish_image(
     ark: OpenArk,
-    filename: str,
-    function_name: str
+    filename: str, # 파이썬 명령줄 인수를 위한 변수 선언 부분
+    function_name: str 
 ) -> None:
     # define a model
-    model = await ark.get_model_channel(function_name)
+    model = await ark.get_model_channel(function_name) # function_name은 NATS의 jubject name처럼 취급.
 
     # check file
     if not os.path.exists(filename):
@@ -23,6 +23,9 @@ async def publish_image(
     payloads = {
         f'{payload_image_key}': open(filename, 'rb').read(),
     }
+    # 이미지 파일의 경우 위와 같은 포맷으로 구성이 가능.
+    # 이 때, 해당 예제에서는 file을 로컬에 저장하였지만, 메모리에 담아서 보낼 수도 있다. 파일의 타입은 bytes
+    # payload_image_key는 실제로 데이터가 저장되는 위치에서 적용되는 이름이다.
 
     # make an input value
     input = {
