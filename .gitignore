@@ -9,3 +9,4 @@ code/result/*.jpg
 code/result/data/*.jpg
 code/openark/.env
 code/openark/.token
+code/openark/*.jpg
